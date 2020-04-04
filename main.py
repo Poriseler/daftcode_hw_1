@@ -16,7 +16,7 @@ class Response(BaseModel):
 @app.get('/post/{pk}')
 def patient_detail(pk: int):
     if pk not in dict_of_patients:
-        raise HTTPException(status_code=404, detail="No patient found")
+        raise HTTPException(status_code=204)
     return dict_of_patients[pk]
 
 @app.post("/patient", response_model=Response)
