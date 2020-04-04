@@ -8,16 +8,16 @@ def hello_world():
 
 @app.get('/method')
 def method_type():
-    return {"method": "GET"}
+    return {"get": "GET"}
 
 @app.delete('/method')
 def method_type():
-    return {"method": "DELETE"}
+    return {"delete": "DELETE"}
 
 @app.put('/method')
 def method_type():
-    return {"method": "PUT"}
+    return {"put": "PUT"}
 
 @app.post('/method')
 def method_type():
-    return {"method": "POST"}
+    return {"post": "POST"}
