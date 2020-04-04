@@ -21,9 +21,9 @@ def patient_detail(pk: int):
 
 @app.post("/patient", response_model=Response)
 def receive_patient(pt: Patient):
-    app.patients_number += 1
     dict_of_patients[app.patients_number] = pt
-    return Response(id=app.patients_number, patient=pt)       
+    app.patients_number += 1
+    return Response(id=app.patients_number-1, patient=pt)       
         
 #@app.post("/patient", response_model=Response)
 #def receive_patient(pt: Patient):
