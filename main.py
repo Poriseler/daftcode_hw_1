@@ -1,8 +1,9 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 
 app = FastAPI()
-app.patients_number = 0
+app.patients_number = -1
+dict_of_patients = {}
 
 class Patient(BaseModel):
     name: str
@@ -12,10 +13,22 @@ class Response(BaseModel):
     id: int
     patient: Patient
 
+@app.get('/post/{pk}')
+def patient_detail(pk: int):
+    if pk not in dict_of_patients:
+        raise HTTPException(status_code=404, detail="No patient found")
+    return dict_of_patients[pk]
+
 @app.post("/patient", response_model=Response)
 def receive_patient(pt: Patient):
     app.patients_number += 1
-    return Response(id=app.patients_number, patient=pt)
+    dict_of_patients[app.patients_number] = pt
+    return Response(id=app.patients_number, patient=pt)       
+        
+#@app.post("/patient", response_model=Response)
+#def receive_patient(pt: Patient):
+ #   app.patients_number += 1
+ #   return Response(id=app.patients_number, patient=pt)
 
 @app.get('/')
 def hello_world():
