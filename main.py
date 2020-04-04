@@ -1,6 +1,21 @@
 from fastapi import FastAPI
-app = FastAPI()
+from pydantic import BaseModel
 
+app = FastAPI()
+app.patients_number = 0
+
+class Patient(BaseModel):
+    name: str
+    surename: str
+
+class Response(BaseModel):
+    id: int
+    patient: Patient
+
+@app.post("/patient", response_model=Response)
+def receive_patient(pt: Patient):
+    app.patients_number += 1
+    return Response(id=app.patients_number, patient=pt)
 
 @app.get('/')
 def hello_world():
