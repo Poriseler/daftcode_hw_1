@@ -30,9 +30,9 @@ def receive_patient(pt: Patient):
  #   app.patients_number += 1
  #   return Response(id=app.patients_number, patient=pt)
 
-@app.get('/')
-def hello_world():
-    return {"message": "Hello World during the coronavirus pandemic!"}
+#@app.get('/')
+#def hello_world():
+  #  return {"message": "Hello World during the coronavirus pandemic!"}
 
 @app.get('/method/')
 def method_type():
@@ -49,3 +49,14 @@ def method_type():
 @app.post('/method/')
 def method_type():
     return {"method": "POST"}
+
+#adding some features
+
+@app.get('/')
+def welcome():
+    return "Hello on '/' subpage! (Still during coronavirus pandemic :()"
+
+@app.get('/welcome')
+def welcome_on_welcome():
+    return "Hello on 'welcome' subpage!"
+
