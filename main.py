@@ -71,7 +71,7 @@ def welcome_on_welcome():
 @app.post("/login")
 def login_to_app(response: Response, credentials: HTTPBasicCredentials = Depends(HTTPBasic())):
 	if credentials.username in app.users and credentials.password == app.users[credentials.username]:
-		s_token = sha256(bytes(f"{credentials.username}{credentials.password}{app.secret}", encoding='utf8')).hexdigest()
+		s_token = sha256(bytes(f"{credentials.username}{credentials.password}{app.secret_key}", encoding='utf8')).hexdigest()
 		response.set_cookie(key="session_token", value=s_token)
 		app.tokens.append(s_token)
 		response.status_code = 307
