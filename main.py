@@ -17,9 +17,9 @@ class Patient(BaseModel):
     name: str
     surename: str
 
-class Response(BaseModel):
-    id: int
-    patient: Patient
+#class Response(BaseModel):
+#    id: int
+ #   patient: Patient
 
 @app.get('/patient/{pk}')
 def patient_detail(pk: int):
@@ -79,7 +79,6 @@ def check_user(credentials: HTTPBasicCredentials = Depends(security)):
         )
     session_token = sha256(bytes(f"{credentials.username}{credentials.password}{app.secret_key}", encoding='utf8')).hexdigest()
     app.sessions[session_token] = credentials.username
-    redirect()
     return session_token
 
 
