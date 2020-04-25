@@ -60,13 +60,12 @@ def method_type():
 
 #adding some features
 
-@app.get('/')
-def welcome():
-    return "Hello on '/' subpage! (Still during coronavirus pandemic :()"
+ 
+def is_cookie(s_token: str = Cookie(None)):
+    if s_token not in app.sessions:
+        s_token = None
+    return s_token
 
-@app.get('/welcome')
-def welcome_on_welcome():
-    return "Hello on 'welcome' subpage!"
 
 def check_user(credentials: HTTPBasicCredentials = Depends(security)):
     correct_username = secrets.compare_digest(credentials.username, "trudnY")
@@ -81,13 +80,31 @@ def check_user(credentials: HTTPBasicCredentials = Depends(security)):
     app.sessions[session_token] = credentials.username
     return session_token
 
+@app.get('/')
+def welcome():
+    return "Hello on '/' subpage! (Still during coronavirus pandemic :()"
 
+@app.get('/welcome')
+def welcome_on_welcome():
+    return "Hello on 'welcome' subpage!"
+ 
 @app.post("/login")
-def login(response: Response, session_token: str = Depends(check_user)):
+def login(response: Response, s_token: str = Depends(check_user)):
     response.status_code = status.HTTP_302_FOUND
     response.headers["Location"] = "/welcome"
-    response.set_cookie(key="session_token", value=session_token)
+    response.set_cookie(key="s_token", value=s_token)
     RedirectResponse(url='/welcome')
+    
+@app.post("/logout")
+def logout(response: Response, s_token: str = Depends(is_cookie)):
+    if s_token is None:
+        response.status_code = status.HTTP_401_UNAUTHORIZED
+        return "You are not allowed to be here!"
+    
+    response.headers["Location"] = "/"
+    response.status_code = status.HTTP_302_FOUND
+    app.sessions.pop(s_token)
+
 
 
 
