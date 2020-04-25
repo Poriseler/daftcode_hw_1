@@ -1,9 +1,16 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Response, Cookie, Depends, status
 from pydantic import BaseModel
+from fastapi.security import HTTPBasic, HTTPBasicCredentials
+from starlette.responses import RedirectResponse
+import secrets
+from hashlib import sha256
 
 app = FastAPI()
 app.patients_number = -1
 dict_of_patients = {}
+security = HTTPBasic()
+app.secret_key = "very constatn and random secret, best 64 characters"
+app.sessions = {}
 
 class Patient(BaseModel):
     name: str
@@ -59,4 +66,27 @@ def welcome():
 @app.get('/welcome')
 def welcome_on_welcome():
     return "Hello on 'welcome' subpage!"
+
+def check_user(credentials: HTTPBasicCredentials = Depends(security)):
+    correct_username = secrets.compare_digest(credentials.username, "trudnY")
+    correct_password = secrets.compare_digest(credentials.password, "PaC13Nt")
+    if not (correct_username and correct_password):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect email or password",
+            headers={"WWW-Authenticate": "Basic"},
+        )
+    session_token = sha256(bytes(f"{credentials.username}{credentials.password}{app.secret_key}", encoding='utf8')).hexdigest()
+    app.sessions[session_token] = credentials.username
+    return session_token
+
+@app.post("/login")
+def login(response: Response, session_token: str = Depends(check_user)):
+    response.status_code = status.HTTP_302_FOUND
+    response.headers["Location"] = "/welcome"
+    response.set_cookie(key="session_token", value=session_token)
+
+
+
+
 
