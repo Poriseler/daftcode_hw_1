@@ -20,6 +20,29 @@ class Patient(BaseModel):
 class PatientResponse(BaseModel):
     id: int
     patient: Patient
+        
+        
+
+ 
+def is_cookie(s_token: str = Cookie(None)):
+    if s_token not in app.sessions:
+        s_token = None
+    return s_token
+
+def check_user(credentials: HTTPBasicCredentials = Depends(security)):
+    correct_username = secrets.compare_digest(credentials.username, "trudnY")
+    correct_password = secrets.compare_digest(credentials.password, "PaC13Nt")
+    if not (correct_username and correct_password):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect email or password",
+            headers={"WWW-Authenticate": "Basic"},
+        )
+    s_token = sha256(bytes(f"{credentials.username}{credentials.password}{app.secret_key}", encoding='utf8')).hexdigest()
+    app.sessions[s_token] = credentials.username
+    return s_token
+
+
 
 @app.get('/patient/{pk}')
 def patient_detail(pk: int, response: Response, s_token: str = Depends(is_cookie)):
@@ -66,25 +89,7 @@ def method_type():
 
 #adding some features
 
- 
-def is_cookie(s_token: str = Cookie(None)):
-    if s_token not in app.sessions:
-        s_token = None
-    return s_token
 
-
-def check_user(credentials: HTTPBasicCredentials = Depends(security)):
-    correct_username = secrets.compare_digest(credentials.username, "trudnY")
-    correct_password = secrets.compare_digest(credentials.password, "PaC13Nt")
-    if not (correct_username and correct_password):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect email or password",
-            headers={"WWW-Authenticate": "Basic"},
-        )
-    session_token = sha256(bytes(f"{credentials.username}{credentials.password}{app.secret_key}", encoding='utf8')).hexdigest()
-    app.sessions[session_token] = credentials.username
-    return session_token
 
 @app.get('/')
 def welcome():
