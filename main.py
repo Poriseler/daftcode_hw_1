@@ -67,6 +67,11 @@ def welcome():
 def welcome_on_welcome():
     return "Hello on 'welcome' subpage!"
 
+def redirect(x='/welcome'):
+    redirect_page = RedirectResponse(url=x)
+    return redirect_page
+
+
 def check_user(credentials: HTTPBasicCredentials = Depends(security)):
     correct_username = secrets.compare_digest(credentials.username, "trudnY")
     correct_password = secrets.compare_digest(credentials.password, "PaC13Nt")
@@ -78,6 +83,7 @@ def check_user(credentials: HTTPBasicCredentials = Depends(security)):
         )
     session_token = sha256(bytes(f"{credentials.username}{credentials.password}{app.secret_key}", encoding='utf8')).hexdigest()
     app.sessions[session_token] = credentials.username
+    redirect()
     return session_token
 
 @app.post("/login")
@@ -85,8 +91,7 @@ def login(response: Response, session_token: str = Depends(check_user)):
     response.status_code = status.HTTP_302_FOUND
     response.headers["Location"] = "/welcome"
     response.set_cookie(key="session_token", value=session_token)
-    redirect = RedirectResponse(url='/welcome')
-    return redirect
+    
 
 
 
