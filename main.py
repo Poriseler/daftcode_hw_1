@@ -67,8 +67,8 @@ def welcome():
 def welcome_on_welcome():
     return "Hello on 'welcome' subpage!"
 
-def redirect(x='/welcome'):
-    redirect_page = RedirectResponse(url=x)
+def redirect():
+    redirect_page = RedirectResponse(url='/welcome')
     return redirect_page
 
 
