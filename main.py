@@ -74,12 +74,12 @@ def login_to_app(response: Response, credentials: HTTPBasicCredentials = Depends
 		s_token = sha256(bytes(f"{credentials.username}{credentials.password}{app.secret_key}", encoding='utf8')).hexdigest()
 		response.set_cookie(key="session_token", value=s_token)
 		app.tokens.append(s_token)
-		response.status_code = 307
+		response.status_code = status.HTTP_302_FOUND
 		response.headers['Location'] = "/welcome"
-		return RedirectResponse(url='/welcome')
-		#return response
+		RedirectResponse(url='/welcome')
+		return response
 	else:
-		raise HTTPException(status_code=401, detail="Niepoprawny login lub hasło")
+		raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Whoops, something went wrong")
 
 
 
