@@ -85,6 +85,8 @@ def login(response: Response, session_token: str = Depends(check_user)):
     response.status_code = status.HTTP_302_FOUND
     response.headers["Location"] = "/welcome"
     response.set_cookie(key="session_token", value=session_token)
+    redirect = RedirectResponse(url='/welcome')
+    return redirect
 
 
 
