@@ -109,6 +109,7 @@ def show_everyone(response: Response, s_token: str = Depends(is_cookie)):
         response.status_code = status.HTTP_401_UNAUTHORIZED
         return "You are not allowed to be here!"
     if dict_of_patients:
+        response.status_code = status.HTTP_302_FOUND
         return dict_of_patients
     else:
         response.status_code = status.HTTP_204_NO_CONTENT
@@ -129,7 +130,7 @@ def kill_him(id: int, response: Response, s_token: str = Depends(is_cookie)):
         response.status_code = status.HTTP_401_UNAUTHORIZED
         return "You are not allowed to be here!"
     del dict_of_patients[id]
-    response.status_code = status.HTTP_204_NO_CONTENT
+    response.status_code = status.HTTP_302_FOUND
 
 
 @app.get('/')
