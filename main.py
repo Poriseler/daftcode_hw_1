@@ -129,7 +129,8 @@ def kill_him(id: int, response: Response, s_token: str = Depends(is_cookie)):
     if s_token is None:
         response.status_code = status.HTTP_401_UNAUTHORIZED
         return "You are not allowed to be here!"
-    del app.dict_of_patients[id]
+   # del app.dict_of_patients[id]
+    app.patients.pop(id, None)
     response.status_code = status.HTTP_302_FOUND
 
 
