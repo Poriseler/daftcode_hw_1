@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, Response, Cookie, Depends, status
+from fastapi import FastAPI, HTTPException, Response, Cookie, Depends, status, Request
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
