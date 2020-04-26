@@ -96,8 +96,12 @@ def welcome():
     return "Hello on '/' subpage! (Still during coronavirus pandemic :()"
 
 @app.get('/welcome')
-def welcome_on_welcome():
-    return "Hello on 'welcome' subpage!"
+def welcome_on_welcome(request: Request, response: Response, s_token: str = Depends(is_cookie)):
+    if s_token is None:
+        response.status_code = status.HTTP_401_UNAUTHORIZED
+        return "You are not allowed to be here!"
+    user = app.sessions[s_token]
+    return templates.TemplateResponse("welcome.html", {"request": request, "user": user})
  
 @app.post("/login")
 def login(response: Response, s_token: str = Depends(check_user)):
