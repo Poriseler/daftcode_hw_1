@@ -101,7 +101,7 @@ def receive_patient(PatientData: Patient, response: Response, s_token: str = Dep
     response.headers["Location"] = f"/patient/{id}"
     response.status_code = status.HTTP_302_FOUND
     app.patients_number += 1
-    #RedirectResponse(url=f'/patient/{id}')
+   
 
 @app.get("/patient")
 def show_everyone(response: Response, s_token: str = Depends(is_cookie)):
@@ -151,7 +151,7 @@ def login(response: Response, s_token: str = Depends(check_user)):
     response.status_code = status.HTTP_302_FOUND
     response.headers["Location"] = "/welcome"
     response.set_cookie(key="s_token", value=s_token)
-    RedirectResponse(url='/welcome')
+    
     
 @app.post("/logout")
 def logout(response: Response, s_token: str = Depends(is_cookie)):
