@@ -7,7 +7,7 @@ import secrets
 from hashlib import sha256
 
 app = FastAPI()
-app.patients_number = 0
+app.patients_number = 1
 app.dict_of_patients = {}
 security = HTTPBasic()
 app.secret_key = "very constatn and random secret, best 64 characters"
@@ -108,11 +108,8 @@ def show_everyone(response: Response, s_token: str = Depends(is_cookie)):
     if s_token is None:
         response.status_code = status.HTTP_401_UNAUTHORIZED
         return "You are not allowed to be here!"
-  #  if dict_of_patients:
     response.status_code = status.HTTP_302_FOUND
     return app.dict_of_patients
-   # else:
-    #    response.status_code = status.HTTP_204_NO_CONTENT
 
 @app.get("/patient/{id}")
 def show_one(id: int, response: Response, s_token: str = Depends(is_cookie)):
