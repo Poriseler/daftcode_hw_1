@@ -105,9 +105,10 @@ def receive_patient(PatientData: Patient, response: Response, s_token: str = Dep
 
 @app.get("/patient")
 def show_everyone(response: Response, s_token: str = Depends(is_cookie)):
-  #  if s_token is None:
-  #      response.status_code = status.HTTP_401_UNAUTHORIZED
-  #      return "You are not allowed to be here!"
+    print(app.sessions)
+    if s_token is None:
+        response.status_code = status.HTTP_401_UNAUTHORIZED
+        return "You are not allowed to be here!"
   #  if dict_of_patients:
     response.status_code = status.HTTP_302_FOUND
     return app.dict_of_patients
@@ -126,6 +127,7 @@ def show_one(id: int, response: Response, s_token: str = Depends(is_cookie)):
 
 @app.delete("/patient/{id}")
 def kill_him(id: int, response: Response, s_token: str = Depends(is_cookie)):
+    
     if s_token is None:
         response.status_code = status.HTTP_401_UNAUTHORIZED
         return "You are not allowed to be here!"
