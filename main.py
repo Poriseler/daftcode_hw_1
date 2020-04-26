@@ -98,7 +98,6 @@ def receive_patient(PatientData: Patient, response: Response, s_token: str = Dep
         return "You are not allowed to be here!"
     id = app.patients_number
     app.dict_of_patients[id] = PatientData.dict()
-    response.set_cookie(key="s_token", value=s_token)
     response.headers["Location"] = f"/patient/{id}"
     response.status_code = status.HTTP_302_FOUND
     app.patients_number += 1
@@ -117,7 +116,6 @@ def show_one(id: int, response: Response, s_token: str = Depends(is_cookie)):
     if s_token is None:
         response.status_code = status.HTTP_401_UNAUTHORIZED
         return "You are not allowed to be here!"
-    response.set_cookie(key="s_token", value=s_token)
     if id in app.dict_of_patients:
         return app.dict_of_patients[id]
     else:
@@ -125,11 +123,9 @@ def show_one(id: int, response: Response, s_token: str = Depends(is_cookie)):
 
 @app.delete("/patient/{id}")
 def kill_him(id: int, response: Response, s_token: str = Depends(is_cookie)):
-    
     if s_token is None:
         response.status_code = status.HTTP_401_UNAUTHORIZED
         return "You are not allowed to be here!"
-   # del app.dict_of_patients[id]
     app.dict_of_patients.pop(id, None)
     response.status_code = status.HTTP_302_FOUND
 
