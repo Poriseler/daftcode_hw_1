@@ -8,7 +8,7 @@ from hashlib import sha256
 
 app = FastAPI()
 app.patients_number = -1
-dict_of_patients = {}
+app.dict_of_patients = {}
 security = HTTPBasic()
 app.secret_key = "very constatn and random secret, best 64 characters"
 app.sessions = {}
@@ -97,7 +97,7 @@ def receive_patient(PatientData: Patient, response: Response, s_token: str = Dep
         response.status_code = status.HTTP_401_UNAUTHORIZED
         return "You are not allowed to be here!"
     id = app.patients_number
-    dict_of_patients[id] = PatientData
+    app.dict_of_patients[id] = PatientData
     response.headers["Location"] = f"/patient/{id}"
     response.status_code = status.HTTP_302_FOUND
     app.patients_number += 1
@@ -110,7 +110,7 @@ def show_everyone(response: Response, s_token: str = Depends(is_cookie)):
         return "You are not allowed to be here!"
     if dict_of_patients:
         response.status_code = status.HTTP_302_FOUND
-        return dict_of_patients
+        return app.dict_of_patients
     else:
         response.status_code = status.HTTP_204_NO_CONTENT
 
@@ -119,8 +119,8 @@ def show_one(id: int, response: Response, s_token: str = Depends(is_cookie)):
     if s_token is None:
         response.status_code = status.HTTP_401_UNAUTHORIZED
         return "You are not allowed to be here!"
-    if id in dict_of_patients:
-        return dict_of_patients[id]
+    if id in app.dict_of_patients:
+        return app.dict_of_patients[id]
     else:
         response.status_code = status.HTTP_204_NO_CONTENT
 
@@ -129,7 +129,7 @@ def kill_him(id: int, response: Response, s_token: str = Depends(is_cookie)):
     if s_token is None:
         response.status_code = status.HTTP_401_UNAUTHORIZED
         return "You are not allowed to be here!"
-    del dict_of_patients[id]
+    del app.dict_of_patients[id]
     response.status_code = status.HTTP_302_FOUND
 
 
