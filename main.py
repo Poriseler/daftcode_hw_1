@@ -12,6 +12,7 @@ security = HTTPBasic()
 app.secret_key = "very constatn and random secret, best 64 characters"
 app.sessions = {}
 app.users={"trudnY": "PaC13Nt"}
+templates = Jinja2Templates(directory="templates")
 
 class Patient(BaseModel):
     name: str
