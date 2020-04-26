@@ -46,23 +46,23 @@ def check_user(credentials: HTTPBasicCredentials = Depends(security)):
 
 
 
-@app.get('/patient/{pk}')
-def patient_detail(pk: int, response: Response, s_token: str = Depends(is_cookie)):
-    if s_token is None:
-        response.status_code = status.HTTP_401_UNAUTHORIZED
-        return "You are not allowed to be here!"
-    if pk not in dict_of_patients:
-        raise HTTPException(status_code=204, detail="No such patient")
-    return dict_of_patients[pk]
+#@app.get('/patient/{pk}')
+#def patient_detail(pk: int, response: Response, s_token: str = Depends(is_cookie)):
+#    if s_token is None:
+ #       response.status_code = status.HTTP_401_UNAUTHORIZED
+  #      return "You are not allowed to be here!"
+  #  if pk not in dict_of_patients:
+   #     raise HTTPException(status_code=204, detail="No such patient")
+  #  return dict_of_patients[pk]
 
-@app.post("/patient", response_model=PatientResponse)
-def receive_patient(pt: Patient, response: Response, s_token: str = Depends(is_cookie)):
-    if s_token is None:
-        response.status_code = status.HTTP_401_UNAUTHORIZED
-        return "You are not allowed to be here!"
-    dict_of_patients[app.patients_number] = pt
-    app.patients_number += 1
-    return Response(id=app.patients_number-1, patient=pt)       
+#@app.post("/patient", response_model=PatientResponse)
+#def receive_patient(pt: Patient, response: Response, s_token: str = Depends(is_cookie)):
+ #   if s_token is None:
+  #      response.status_code = status.HTTP_401_UNAUTHORIZED
+  #      return "You are not allowed to be here!"
+  #  dict_of_patients[app.patients_number] = pt
+  #  app.patients_number += 1
+  #  return Response(id=app.patients_number-1, patient=pt)       
         
 #@app.post("/patient", response_model=Response)
 #def receive_patient(pt: Patient):
@@ -91,6 +91,45 @@ def method_type():
 
 #adding some features
 
+@app.post("/patient")
+def receive_patient(PatientData: Patient, response: Response, s_token: str = Depends(is_cookie)):
+    if s_token is None:
+        response.status_code = status.HTTP_401_UNAUTHORIZED
+        return "You are not allowed to be here!"
+    id = app.patients_number
+    dict_of_patients[id] = PatientData
+    response.headers["Location"] = f"/patient/{id}"
+    response.status_code = status.HTTP_302_FOUND
+    app.patients_number += 1
+    RedirectResponse(url=f'/patient/{id}')
+
+@app.get("/patient")
+def show_everyone(response: Response, s_token: str = Depends(is_cookie)):
+    if s_token is None:
+        response.status_code = status.HTTP_401_UNAUTHORIZED
+        return "You are not allowed to be here!"
+    if dict_of_patients:
+        return dict_of_patients
+    else:
+        response.status_code = status.HTTP_204_NO_CONTENT
+
+@app.get("/patient/{id}")
+def show_one(id: int, response: Response, s_token: str = Depends(is_cookie)):
+    if s_token is None:
+        response.status_code = status.HTTP_401_UNAUTHORIZED
+        return "You are not allowed to be here!"
+    if id in dict_of_patients:
+        return dict_of_patients[id]
+    else:
+        response.status_code = status.HTTP_204_NO_CONTENT
+
+@app.delete("/patient/{id}")
+def kill_him(id: int, response: Response, s_token: str = Depends(is_cookie)):
+    if s_token is None:
+        response.status_code = status.HTTP_401_UNAUTHORIZED
+        return "You are not allowed to be here!"
+    del dict_of_patients[id]
+    response.status_code = status.HTTP_204_NO_CONTENT
 
 
 @app.get('/')
