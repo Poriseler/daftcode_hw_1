@@ -1,4 +1,5 @@
 from fastapi import FastAPI, HTTPException, Response, Cookie, Depends, status
+from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from starlette.responses import RedirectResponse
