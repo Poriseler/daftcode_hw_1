@@ -109,7 +109,7 @@ def show_everyone(response: Response, s_token: str = Depends(is_cookie)):
         response.status_code = status.HTTP_401_UNAUTHORIZED
         return "You are not allowed to be here!"
   #  if dict_of_patients:
-   #     response.status_code = status.HTTP_302_FOUND
+    response.status_code = status.HTTP_302_FOUND
     return app.dict_of_patients
    # else:
     #    response.status_code = status.HTTP_204_NO_CONTENT
