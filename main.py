@@ -7,7 +7,7 @@ import secrets
 from hashlib import sha256
 
 app = FastAPI()
-app.patients_number = 0
+app.patients_number = 1
 app.dict_of_patients = {}
 security = HTTPBasic()
 app.secret_key = "very constatn and random secret, best 64 characters"
