@@ -25,10 +25,10 @@ class Patient(BaseModel):
  #   patient: Patient
 
 
-def is_cookie(s_token: str = Cookie(None)):
-    if s_token not in app.sessions:
-        s_token = None
-    return s_token
+def is_cookie(session_token: str = Cookie(None)):
+    if session_token not in app.sessions:
+        session_token = None
+    return session_token
 
 
 def check_user(credentials: HTTPBasicCredentials = Depends(security)):
@@ -40,10 +40,10 @@ def check_user(credentials: HTTPBasicCredentials = Depends(security)):
             detail="Incorrect email or password",
             headers={"WWW-Authenticate": "Basic"},
         )
-    s_token = sha256(
+    session_token = sha256(
         bytes(f"{credentials.username}{credentials.password}{app.secret_key}", encoding='utf8')).hexdigest()
-    app.sessions[s_token] = credentials.username
-    return s_token
+    app.sessions[session_token] = credentials.username
+    return session_token
 
 
 @app.get('/method/')
@@ -69,8 +69,8 @@ def method_type():
 # adding some features
 
 @app.post("/patient")
-def receive_patient(PatientData: Patient, response: Response, s_token: str = Depends(is_cookie)):
-    if s_token is None:
+def receive_patient(PatientData: Patient, response: Response, session_token: str = Depends(is_cookie)):
+    if session_token is None:
         response.status_code = status.HTTP_401_UNAUTHORIZED
         return "You are not allowed to be here!"
     id = app.patients_number
@@ -81,9 +81,9 @@ def receive_patient(PatientData: Patient, response: Response, s_token: str = Dep
 
 
 @app.get("/patient")
-def show_everyone(response: Response, s_token: str = Depends(is_cookie)):
+def show_everyone(response: Response, session_token: str = Depends(is_cookie)):
     print(app.sessions)
-    if s_token is None:
+    if session_token is None:
         response.status_code = status.HTTP_401_UNAUTHORIZED
         return "You are not allowed to be here!"
     #  if dict_of_patients:
@@ -92,9 +92,9 @@ def show_everyone(response: Response, s_token: str = Depends(is_cookie)):
 
 
 @app.get("/patient/{id}")
-def show_one(id: int, response: Response, s_token: str = Depends(is_cookie)):
+def show_one(id: int, response: Response, session_token: str = Depends(is_cookie)):
     print(app.sessions)
-    if s_token is None:
+    if session_token is None:
         response.status_code = status.HTTP_401_UNAUTHORIZED
         return "You are not allowed to be here!"
     if id in app.dict_of_patients:
@@ -104,9 +104,9 @@ def show_one(id: int, response: Response, s_token: str = Depends(is_cookie)):
 
 
 @app.delete("/patient/{id}")
-def kill_him(id: int, response: Response, s_token: str = Depends(is_cookie)):
+def kill_him(id: int, response: Response, session_token: str = Depends(is_cookie)):
     print(app.sessions)
-    if s_token is None:
+    if session_token is None:
         response.status_code = status.HTTP_401_UNAUTHORIZED
         return "You are not allowed to be here!"
     response.status_code = status.HTTP_302_FOUND
@@ -118,27 +118,27 @@ def welcome():
 
 
 @app.get('/welcome')
-def welcome_on_welcome(request: Request, response: Response, s_token: str = Depends(is_cookie)):
-    if s_token is None:
+def welcome_on_welcome(request: Request, response: Response, session_token: str = Depends(is_cookie)):
+    if session_token is None:
         response.status_code = status.HTTP_401_UNAUTHORIZED
         return "You are not allowed to be here!"
-    user = app.sessions[s_token]
+    user = app.sessions[session_token]
     return templates.TemplateResponse("welcome.html", {"request": request, "user": user})
 
 
 @app.post("/login")
-def login(response: Response, s_token: str = Depends(check_user)):
+def login(response: Response, session_token: str = Depends(check_user)):
     response.status_code = status.HTTP_302_FOUND
     response.headers["Location"] = "/welcome"
-    response.set_cookie(key="s_token", value=s_token)
+    response.set_cookie(key="session_token", value=session_token)
 
 
 @app.post("/logout")
-def logout(response: Response, s_token: str = Depends(is_cookie)):
-    if s_token is None:
+def logout(response: Response, session_token: str = Depends(is_cookie)):
+    if session_token is None:
         response.status_code = status.HTTP_401_UNAUTHORIZED
         return "You are not allowed to be here!"
 
     response.headers["Location"] = "/"
     response.status_code = status.HTTP_302_FOUND
-    app.sessions.pop(s_token)
+    app.sessions.pop(session_token)
