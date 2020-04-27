@@ -141,20 +141,33 @@ def welcome():
     return "Hello on '/' subpage! (Still during coronavirus pandemic :()"
 
 @app.get('/welcome')
-def welcome_on_welcome(request: Request, response: Response, s_token: str = Depends(is_cookie)):
+def welcome_on_welcome(request: Request, response: Response, s_token: str = Depends(None)):
     #if s_token is None:
     if s_token not in app.s_tokens:
         response.status_code = status.HTTP_401_UNAUTHORIZED
         return "You are not allowed to be here!"
-    user = app.sessions[s_token]
-    return templates.TemplateResponse("welcome.html", {"request": request, "user": user})
+   # user = app.sessions[s_token]
+    return templates.TemplateResponse("welcome.html", {"request": request, "user": "trudnY"})
  
+#@app.post("/login")
+#def login(response: Response, s_token: str = Depends(check_user)):
+ #   response.status_code = status.HTTP_302_FOUND
+  #  response.headers["Location"] = "/welcome"
+  #  app.s_tokens.append(s_token)
+  #  response.set_cookie(key="s_token", value=s_token)
+
+
 @app.post("/login")
-def login(response: Response, s_token: str = Depends(check_user)):
-    response.status_code = status.HTTP_302_FOUND
-    response.headers["Location"] = "/welcome"
+def get_current_user(response: Response, credentials: HTTPBasicCredentials = Depends(security)):
+    correct_username = secrets.compare_digest(credentials.username, "trudnY")
+    correct_password = secrets.compare_digest(credentials.password, "PaC13Nt")
+    if not (correct_username and correct_password):
+        raise HTTPException(status_code=401, detail="Incorrect email or password")
+    s_token = sha256(bytes(f"{credentials.username}{credentials.password}{app.secret_key}", encoding='utf8')).hexdigest()
     app.s_tokens.append(s_token)
     response.set_cookie(key="s_token", value=s_token)
+    response.headers["Location"] = "/welcome"
+    response.status_code = status.HTTP_302_FOUND 
     
     
 @app.post("/logout")
