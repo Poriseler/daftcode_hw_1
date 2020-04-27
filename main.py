@@ -12,6 +12,7 @@ app.dict_of_patients = {}
 security = HTTPBasic()
 app.secret_key = "very constatn and random secret, best 64 characters"
 app.sessions = {}
+app.s_tokens = []
 app.users={"trudnY": "PaC13Nt"}
 templates = Jinja2Templates(directory="templates")
 
@@ -93,7 +94,8 @@ def method_type():
 
 @app.post("/patient")
 def receive_patient(PatientData: Patient, response: Response, s_token: str = Depends(is_cookie)):
-    if s_token is None:
+    #if s_token is None:
+    if s_token not in app.s_tokens:
         response.status_code = status.HTTP_401_UNAUTHORIZED
         return "You are not allowed to be here!"
     id = app.patients_number
@@ -105,7 +107,8 @@ def receive_patient(PatientData: Patient, response: Response, s_token: str = Dep
 
 @app.get("/patient")
 def show_everyone(response: Response, s_token: str = Depends(is_cookie)):
-    if s_token is None:
+    #if s_token is None:
+    if s_token not in app.s_tokens:
         response.status_code = status.HTTP_401_UNAUTHORIZED
         return "You are not allowed to be here!"
  #   response.status_code = status.HTTP_200_OK
@@ -113,7 +116,8 @@ def show_everyone(response: Response, s_token: str = Depends(is_cookie)):
 
 @app.get("/patient/{id}")
 def show_one(id: int, response: Response, s_token: str = Depends(is_cookie)):
-    if s_token is None:
+    #if s_token is None:
+    if s_token not in app.s_tokens:
         response.status_code = status.HTTP_401_UNAUTHORIZED
         return "You are not allowed to be here!"
     if id in app.dict_of_patients:
@@ -123,7 +127,8 @@ def show_one(id: int, response: Response, s_token: str = Depends(is_cookie)):
 
 @app.delete("/patient/{id}")
 def kill_him(id: int, response: Response, s_token: str = Depends(is_cookie)):
-    if s_token is None:
+    #if s_token is None:
+    if s_token not in app.s_tokens:
         response.status_code = status.HTTP_401_UNAUTHORIZED
         return "You are not allowed to be here!"
     app.dict_of_patients.pop(id, None)
@@ -137,7 +142,8 @@ def welcome():
 
 @app.get('/welcome')
 def welcome_on_welcome(request: Request, response: Response, s_token: str = Depends(is_cookie)):
-    if s_token is None:
+    #if s_token is None:
+    if s_token not in app.s_tokens:
         response.status_code = status.HTTP_401_UNAUTHORIZED
         return "You are not allowed to be here!"
     user = app.sessions[s_token]
@@ -147,12 +153,14 @@ def welcome_on_welcome(request: Request, response: Response, s_token: str = Depe
 def login(response: Response, s_token: str = Depends(check_user)):
     response.status_code = status.HTTP_302_FOUND
     response.headers["Location"] = "/welcome"
+    app.s_tokens.append(s_token)
     response.set_cookie(key="s_token", value=s_token)
     
     
 @app.post("/logout")
 def logout(response: Response, s_token: str = Depends(is_cookie)):
-    if s_token is None:
+    #if s_token is None:
+    if s_token not in app.s_tokens:
         response.status_code = status.HTTP_401_UNAUTHORIZED
         return "You are not allowed to be here!"
     
