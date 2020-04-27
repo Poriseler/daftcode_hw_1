@@ -99,7 +99,7 @@ def receive_patient(PatientData: Patient, response: Response, s_token: str = Dep
     id = app.patients_number
     app.dict_of_patients[id] = PatientData.dict()
     response.headers["Location"] = f"/patient/{id}"
-    response.status_code = status.HTTP_302_FOUND
+    response.status_code = status.HTTP_200_OK
     app.patients_number += 1
    
 
@@ -108,7 +108,7 @@ def show_everyone(response: Response, s_token: str = Depends(is_cookie)):
     if s_token is None:
         response.status_code = status.HTTP_401_UNAUTHORIZED
         return "You are not allowed to be here!"
-    #response.status_code = status.HTTP_302_FOUND
+    response.status_code = status.HTTP_200_OK
     return app.dict_of_patients
 
 @app.get("/patient/{id}")
