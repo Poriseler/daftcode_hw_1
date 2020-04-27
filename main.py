@@ -11,6 +11,7 @@ app.dict_of_patients = {}
 security = HTTPBasic()
 app.secret_key = "very constatn and random secret, best 64 characters"
 app.sessions = {}
+app.session_tokens =[]
 app.users = {"trudnY": "PaC13Nt"}
 templates = Jinja2Templates(directory="templates")
 
@@ -26,7 +27,7 @@ class Patient(BaseModel):
 
 
 def is_cookie(session_token: str = Cookie(None)):
-    if session_token in app.sessions:
+    if (session_token in app.sessions) or (session_token in app.session_tokens):
         return session_token
 
 
@@ -42,6 +43,7 @@ def check_user(credentials: HTTPBasicCredentials = Depends(security)):
     session_token = sha256(
         bytes(f"{credentials.username}{credentials.password}{app.secret_key}", encoding='utf8')).hexdigest()
     app.sessions[session_token] = credentials.username
+    app.session_tokens.append(session_token)
     return session_token
 
 
