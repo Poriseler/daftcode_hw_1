@@ -93,9 +93,8 @@ def method_type():
 #adding some features
 
 @app.post("/patient")
-def receive_patient(PatientData: Patient, response: Response, s_token: str = Depends(None)):
-    #if s_token is None:
-    if s_token not in app.s_tokens:
+def receive_patient(PatientData: Patient, response: Response, s_token: str = Depends(is_cookie)):
+    if s_token is None:
         response.status_code = status.HTTP_401_UNAUTHORIZED
         return "You are not allowed to be here!"
     id = app.patients_number
@@ -106,18 +105,16 @@ def receive_patient(PatientData: Patient, response: Response, s_token: str = Dep
    
 
 @app.get("/patient")
-def show_everyone(response: Response, s_token: str = Depends(None)):
-    #if s_token is None:
-    if s_token not in app.s_tokens:
+def show_everyone(response: Response, s_token: str = Depends(is_cookie)):
+    if s_token is None:
         response.status_code = status.HTTP_401_UNAUTHORIZED
         return "You are not allowed to be here!"
  #   response.status_code = status.HTTP_200_OK
     return app.dict_of_patients
 
 @app.get("/patient/{id}")
-def show_one(id: int, response: Response, s_token: str = Depends(None)):
-    #if s_token is None:
-    if s_token not in app.s_tokens:
+def show_one(id: int, response: Response, s_token: str = Depends(is_cookie)):
+    if s_token is None:
         response.status_code = status.HTTP_401_UNAUTHORIZED
         return "You are not allowed to be here!"
     if id in app.dict_of_patients:
@@ -126,9 +123,8 @@ def show_one(id: int, response: Response, s_token: str = Depends(None)):
         response.status_code = status.HTTP_204_NO_CONTENT
 
 @app.delete("/patient/{id}")
-def kill_him(id: int, response: Response, s_token: str = Depends(None)):
-    #if s_token is None:
-    if s_token not in app.s_tokens:
+def kill_him(id: int, response: Response, s_token: str = Depends(is_cookie)):
+    if s_token is None:
         response.status_code = status.HTTP_401_UNAUTHORIZED
         return "You are not allowed to be here!"
     app.dict_of_patients.pop(id, None)
@@ -142,38 +138,25 @@ def welcome():
 
 @app.get('/welcome')
 def welcome_on_welcome(request: Request, response: Response, s_token: str = Depends(None)):
-    #if s_token is None:
-    if s_token not in app.s_tokens:
+    if s_token is None:
         response.status_code = status.HTTP_401_UNAUTHORIZED
         return "You are not allowed to be here!"
-   # user = app.sessions[s_token]
-    return templates.TemplateResponse("welcome.html", {"request": request, "user": "trudnY"})
+    user = app.sessions[s_token]
+    return templates.TemplateResponse("welcome.html", {"request": request, "user": user})
  
-#@app.post("/login")
-#def login(response: Response, s_token: str = Depends(check_user)):
- #   response.status_code = status.HTTP_302_FOUND
-  #  response.headers["Location"] = "/welcome"
-  #  app.s_tokens.append(s_token)
-  #  response.set_cookie(key="s_token", value=s_token)
-
-
 @app.post("/login")
-def get_current_user(response: Response, credentials: HTTPBasicCredentials = Depends(security)):
-    correct_username = secrets.compare_digest(credentials.username, "trudnY")
-    correct_password = secrets.compare_digest(credentials.password, "PaC13Nt")
-    if not (correct_username and correct_password):
-        raise HTTPException(status_code=401, detail="Incorrect email or password")
-    s_token = sha256(bytes(f"{credentials.username}{credentials.password}{app.secret_key}", encoding='utf8')).hexdigest()
+def login(response: Response, s_token: str = Depends(check_user)):
+    response.status_code = status.HTTP_302_FOUND
+    response.headers["Location"] = "/welcome"
     app.s_tokens.append(s_token)
     response.set_cookie(key="s_token", value=s_token)
-    response.headers["Location"] = "/welcome"
-    response.status_code = status.HTTP_302_FOUND 
+
+
     
     
 @app.post("/logout")
-def logout(response: Response, s_token: str = Depends(None)):
-    #if s_token is None:
-    if s_token not in app.s_tokens:
+def logout(response: Response, s_token: str = Depends(is_cookie)):
+    if s_token is None:
         response.status_code = status.HTTP_401_UNAUTHORIZED
         return "You are not allowed to be here!"
     
