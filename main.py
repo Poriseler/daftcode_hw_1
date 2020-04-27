@@ -26,9 +26,8 @@ class Patient(BaseModel):
 
 
 def is_cookie(session_token: str = Cookie(None)):
-    if session_token not in app.sessions:
-        session_token = None
-    return session_token
+    if session_token in app.sessions:
+        return session_token
 
 
 def check_user(credentials: HTTPBasicCredentials = Depends(security)):
