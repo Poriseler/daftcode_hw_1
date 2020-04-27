@@ -72,10 +72,8 @@ def method_type():
 @app.post("/patient")
 def receive_patient(response: Response, PatientData: Patient, session_token: str = Cookie(None)):
     if session_token not in app.session_tokens:
-    	raise HTTPException(status_code=401, detail="Unathorised")
- #   if session_token is None:
- #       response.status_code = status.HTTP_401_UNAUTHORIZED
- #       return "You are not allowed to be here!"
+	response.status_code = status.HTTP_401_UNAUTHORIZED
+        return "You are not allowed to be here!"
     id = app.patients_number
     app.dict_of_patients[id] = PatientData.dict()
     response.headers["Location"] = f"/patient/{id}"
@@ -86,7 +84,8 @@ def receive_patient(response: Response, PatientData: Patient, session_token: str
 @app.get("/patient")
 def show_everyone(response: Response, session_token: str = Cookie(None)):
     if session_token not in app.session_tokens:
-	raise HTTPException(status_code=401, detail="Unathorised")
+	response.status_code = status.HTTP_401_UNAUTHORIZED
+        return "You are not allowed to be here!"
     response.status_code = status.HTTP_302_FOUND
     return app.dict_of_patients
 
@@ -94,7 +93,8 @@ def show_everyone(response: Response, session_token: str = Cookie(None)):
 @app.get("/patient/{id}")
 def show_one(id: int, response: Response, session_token: str = Cookie(None)):
     if session_token not in app.session_tokens:
-	raise HTTPException(status_code=401, detail="Unathorised")
+	response.status_code = status.HTTP_401_UNAUTHORIZED
+        return "You are not allowed to be here!"
     if id in app.dict_of_patients:
         return app.dict_of_patients[id]
     else:
@@ -104,7 +104,8 @@ def show_one(id: int, response: Response, session_token: str = Cookie(None)):
 @app.delete("/patient/{id}")
 def kill_him(id: int, response: Response, session_token: str = Cookie(None)):
     if session_token not in app.session_tokens:
-	raise HTTPException(status_code=401, detail="Unathorised")
+	response.status_code = status.HTTP_401_UNAUTHORIZED
+        return "You are not allowed to be here!"
     response.status_code = status.HTTP_302_FOUND
     app.dict_of_patients.pop(id, None)
 
