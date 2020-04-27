@@ -93,7 +93,7 @@ def method_type():
 #adding some features
 
 @app.post("/patient")
-def receive_patient(PatientData: Patient, response: Response, s_token: str = Depends(is_cookie)):
+def receive_patient(PatientData: Patient, response: Response, s_token: str = Depends(None)):
     #if s_token is None:
     if s_token not in app.s_tokens:
         response.status_code = status.HTTP_401_UNAUTHORIZED
@@ -106,7 +106,7 @@ def receive_patient(PatientData: Patient, response: Response, s_token: str = Dep
    
 
 @app.get("/patient")
-def show_everyone(response: Response, s_token: str = Depends(is_cookie)):
+def show_everyone(response: Response, s_token: str = Depends(None)):
     #if s_token is None:
     if s_token not in app.s_tokens:
         response.status_code = status.HTTP_401_UNAUTHORIZED
@@ -115,7 +115,7 @@ def show_everyone(response: Response, s_token: str = Depends(is_cookie)):
     return app.dict_of_patients
 
 @app.get("/patient/{id}")
-def show_one(id: int, response: Response, s_token: str = Depends(is_cookie)):
+def show_one(id: int, response: Response, s_token: str = Depends(None)):
     #if s_token is None:
     if s_token not in app.s_tokens:
         response.status_code = status.HTTP_401_UNAUTHORIZED
@@ -126,7 +126,7 @@ def show_one(id: int, response: Response, s_token: str = Depends(is_cookie)):
         response.status_code = status.HTTP_204_NO_CONTENT
 
 @app.delete("/patient/{id}")
-def kill_him(id: int, response: Response, s_token: str = Depends(is_cookie)):
+def kill_him(id: int, response: Response, s_token: str = Depends(None)):
     #if s_token is None:
     if s_token not in app.s_tokens:
         response.status_code = status.HTTP_401_UNAUTHORIZED
@@ -158,7 +158,7 @@ def login(response: Response, s_token: str = Depends(check_user)):
     
     
 @app.post("/logout")
-def logout(response: Response, s_token: str = Depends(is_cookie)):
+def logout(response: Response, s_token: str = Depends(None)):
     #if s_token is None:
     if s_token not in app.s_tokens:
         response.status_code = status.HTTP_401_UNAUTHORIZED
