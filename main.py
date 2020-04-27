@@ -69,7 +69,8 @@ def method_type():
 # adding some features
 
 @app.post("/patient")
-def receive_patient(PatientData: Patient, response: Response, session_token: str = Depends(is_cookie)):
+def receive_patient(response: Response, PatientData: Patient, session_token: str = Depends(is_cookie)):
+    print(app.sessions)
     if session_token is None:
         response.status_code = status.HTTP_401_UNAUTHORIZED
         return "You are not allowed to be here!"
@@ -86,7 +87,6 @@ def show_everyone(response: Response, session_token: str = Depends(is_cookie)):
     if session_token is None:
         response.status_code = status.HTTP_401_UNAUTHORIZED
         return "You are not allowed to be here!"
-    #  if dict_of_patients:
     response.status_code = status.HTTP_302_FOUND
     return app.dict_of_patients
 
@@ -119,6 +119,7 @@ def welcome():
 
 @app.get('/welcome')
 def welcome_on_welcome(request: Request, response: Response, session_token: str = Depends(is_cookie)):
+    print(app.sessions)
     if session_token is None:
         response.status_code = status.HTTP_401_UNAUTHORIZED
         return "You are not allowed to be here!"
