@@ -60,7 +60,14 @@ async def show_tracks(page: int = 0, per_page: int = 10):
     tracks = app.db_connection.execute(f"SELECT * FROM tracks LIMIT {per_page} OFFSET {page * per_page}").fetchall()
     return tracks
 
+@app.get("/tracks/composers/")
+async def particular_composer(composer_name: str):
+    app.db_connection.row_factory = lambda cursor, row: row[0]
+    tracks = app.db_connection.execute("SELECT Name FROM tracks WHERE Composer = ? ORDER BY Name",(composer_name,)).fetchall()
 
+    if len(tracks) == 0:
+        raise HTTPException(status_code=404, detail={"error": "There is no such Composer"})
+    return tracks
 
 @app.get('/method/')
 def method_type():
