@@ -96,7 +96,7 @@ async def show_album(album_id: int):
 
     if not data:
         raise HTTPException(status_code=404, detail={"errors": "There is no such composer"})
-    return AlbumResponse(album_id=album_id, title=data[0]["Title"], artist_id=data[0]["ArtistId"])
+    return AlbumResponse(album_id=album_id, title=data[0]["title"], artist_id=data[0]["artistId"])
 
 
 
