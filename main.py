@@ -4,6 +4,7 @@ from pydantic import BaseModel
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 import secrets
 from hashlib import sha256
+import sqlite3
 
 app = FastAPI()
 app.patients_number = 0
@@ -44,6 +45,21 @@ def check_user(credentials: HTTPBasicCredentials = Depends(security)):
         bytes(f"{credentials.username}{credentials.password}{app.secret_key}", encoding='utf8')).hexdigest()
     app.sessions[s_token] = credentials.username
     return s_token
+
+@app.on_event("startup")
+async def startup():
+    app.db_connection = sqlite3.connect('chinook.db')
+
+@app.on_event("shutdown")
+async def shutdown():
+    await app.db_connection.close()
+
+@app.get("/tracks")
+async def show_tracks(page: int = 0, per_page: int = 10):
+    app.db_connection.row_factory = sqlite3.Row
+    tracks = app.db_connection.execute(f"SELECT * FROM tracks LIMIT {per_page} OFFSET {page * per_page}").fetchall()
+    return tracks
+
 
 
 @app.get('/method/')
