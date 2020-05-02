@@ -20,9 +20,9 @@ class AlbumRequest(BaseModel):
     artist_id: int
 
 class AlbumResponse(BaseModel):
-    album_id: int
-    title: str
-    artist_id: int
+    AlbumId: int
+    Title: str
+    ArtistId: int
 
 class Patient(BaseModel):
     name: str
@@ -87,7 +87,7 @@ async def receive_album(response: Response, request: AlbumRequest):
     app.db_connection.commit()
     new_album_id = cursor.lastrowid
     response.status_code = 201
-    return AlbumResponse(album_id=new_album_id, title=request.title, artist_id=request.artist_id)
+    return AlbumResponse(AlbumId=new_album_id, Title=request.title, ArtistId=request.artist_id)
 
 @app.get("/albums/{album_id}", response_model=AlbumResponse)
 async def show_album(album_id: int):
@@ -96,7 +96,7 @@ async def show_album(album_id: int):
 
     if not data:
         raise HTTPException(status_code=404, detail={"errors": "There is no such composer"})
-    return AlbumResponse(album_id=album_id, title=data[0]["title"], artist_id=data[0]["artistId"])
+    return AlbumResponse(AlbumId=album_id, Title=data[0]["title"], ArtistId=data[0]["artistId"])
 
 
 
