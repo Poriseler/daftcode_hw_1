@@ -98,7 +98,23 @@ async def show_album(album_id: int):
         raise HTTPException(status_code=404, detail={"errors": "There is no such composer"})
     return AlbumResponse(AlbumId=album_id, Title=data[0]["title"], ArtistId=data[0]["artistId"])
 
+@app.put("/customers/{customer_id}")
+async def update_customer(customer_id: int, request: dict={}):
+    app.db_connection.row_factory = sqlite3.Row
+    customer = app.db_connection.execute("SELECT * FROM customers WHERE CustomerId = ?", (customer_id,)).fetchall()
 
+    if not customer:
+        raise HTTPException(status_code=404, detail={"error": "There is no such customer"})
+    queue = "UPDATE customers SET "
+
+    if request:
+        for key in request:
+            queue += f"{key} = \'{request[key]}\', "
+        queue = queue[:-2]
+        queue += " WHERE CustomerId = " + str(customer_id)
+        app.db_connection.execute(queue)
+        app.db_connection.commit()
+    return app.db_connection.execute("SELECT * FROM customers WHERE CustomerId = ?",(customer_id,)).fetchone()
 
 @app.get('/method/')
 def method_type():
