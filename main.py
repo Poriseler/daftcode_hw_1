@@ -15,11 +15,18 @@ app.sessions = {}
 app.users = {"trudnY": "PaC13Nt"}
 templates = Jinja2Templates(directory="templates")
 
+class AlbumRequest(BaseModel):
+    title: str
+    artist_id: int
+
+class AlbumResponse(BaseModel):
+    album_id: int
+    title: str
+    artist_id: int
 
 class Patient(BaseModel):
     name: str
     surename: str
-
 
 #class PatientResponse(BaseModel):
   #  id: int
@@ -68,6 +75,30 @@ async def particular_composer(composer_name: str):
     if len(tracks) == 0:
         raise HTTPException(status_code=404, detail={"error": "There is no such Composer"})
     return tracks
+
+@app.post("/albums", response_model=AlbumResponse)
+async def receive_album(response: Response, request: AlbumRequest):
+    exist = app.db_connection.execute("SELECT Name FROM artists WHERE ArtistId = ?", (request.artist_id,)).fetchall()
+
+    if not exist:
+        raise HTTPException(status_code=404, detail={"error": "There is no such composer"})
+
+    cursor = app.db_connection.execute("INSERT INTO albums(ArtistId, Title) VALUES (?, ?)", (request.artist_id, request.title))
+    app.db_connection.commit()
+    new_album_id = cursor.lastrowid
+    response.status_code = 201
+    return AlbumResponse(album_id=new_album_id, title=request.title, artist_id=request.artist_id)
+
+@app.get("/albums/{album_id}", response_model=AlbumResponse)
+async def show_album(album_id: int):
+    app.db_connection.row_factory = sqlite3.Row
+    data = app.db_connection.execute("SELECT * FROM albums WHERE AlbumId = ?", (album_id,)).fetchall()
+
+    if not data:
+        raise HTTPException(status_code=404, detail={"errors": "There is no such composer"})
+    return AlbumResponse(album_id=album_id, title=data[0]["Title"], artist_id=data[0]["ArtistId"])
+
+
 
 @app.get('/method/')
 def method_type():
