@@ -119,10 +119,9 @@ async def update_customer(customer_id: int, request: dict={}):
 @app.get("/sales")
 async def show_numbers(category: str):
     app.db_connection.row_factory = sqlite3.Row
-    data = None
     
     if category =="customers":
-        data = app.db_connection.execute("SELECT customers.CustomerId, Email, Phone, round(Total,2) AS Sum FROM customers \
+        data = app.db_connection.execute("SELECT customers.CustomerId, Email, Phone, round(sum(Total),2) AS Sum FROM customers \
                                          JOIN invoices ON customers.CustomerId = invoices.CustomerId \
                                          GROUP BY customers.CustomerId \
                                          ORDER BY Sum DESC, customers.CustomerId").fetchall()
