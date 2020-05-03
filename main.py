@@ -125,6 +125,12 @@ async def show_numbers(category: str):
                                          JOIN invoices ON customers.CustomerId = invoices.CustomerId \
                                          GROUP BY customers.CustomerId \
                                          ORDER BY Sum DESC, customers.CustomerId").fetchall()
+    elif category == "genres":
+        data = app.db_connection.execute("SELECT genres.Name, sum(Quantity) AS Sum FROM genres \
+                                         JOIN tracks ON tracks.GenreId = genres.GenreId \
+                                         JOIN invoice_items ON invoice_items.TrackId = tracks.TrackId \
+                                         GROUP BY genres.Name \
+                                         ORDER BY Sum DESC, genres.Name").fetchall()
     else:
         raise HTTPException(status_code=404, detail={"error": "There is no such category"})
         
